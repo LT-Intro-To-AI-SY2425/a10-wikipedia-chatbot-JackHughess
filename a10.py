@@ -68,7 +68,7 @@ def get_match(
     Returns:
         text that matches
     """
-    p = re.compile(pattern, re.DOTALL | re.IGNORECASE)
+    p = re.compile(pattern, re.DOTALL)
     match = p.search(text)
 
     if not match:
@@ -113,11 +113,27 @@ def get_birth_date(name: str) -> str:
 
 def get_state_capital(name: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
     pattern = r"Capital(.*?)(?=Largest)"
     error_text = "Page infobox has no capital city information"
     match = get_match(infobox_text, pattern, error_text)
+    return match.groups()[0]
 
-    return match.group("capital")
+def get_state_senators(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
+    pattern = r"senators(.*?)(?=U.S)"
+    error_text = "Page infobox has no senator information"
+    match = get_match(infobox_text, pattern, error_text)
+    return match.groups()[0]
+
+def get_state_governer(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    # print(infobox_text)
+    pattern = r"Governor(.*?)(?=Lieutenant)"
+    error_text = "Page infobox has no Governor information"
+    match = get_match(infobox_text, pattern, error_text)
+    return match.groups()[0]
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -150,6 +166,12 @@ def polar_radius(matches: List[str]) -> List[str]:
 def state_capital(matches: List[str]) -> List[str]:
     return [get_state_capital(matches[0])]
 
+def state_senators(matches: List[str]) -> List[str]:
+    return [get_state_senators(matches[0])]
+
+def state_governor(matches: List[str]) -> List[str]:
+    return [get_state_governer(matches[0])]
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -166,6 +188,8 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the state capital of %".split(), state_capital),
+    ("who are the state senators of %".split(), state_senators),
+    ("who is the % state governor".split(), state_governor),
     (["bye"], bye_action),
 ]
 
@@ -207,31 +231,6 @@ def query_loop() -> None:
             break
 
     print("\nSo long!\n")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # uncomment the next line once you've implemented everything are ready to try it out
 query_loop()
